@@ -74,7 +74,7 @@ ItemPage {
                             spacing: 4
 
                             Label {
-                                text: isChecking ? qsTr("Checking for updates...") : qsTr("macOS Cutefish Edition 26.04")
+                                text: isChecking ? qsTr("Checking for updates...") : qsTr("Cutefish Edition 26.04")
                                 font.pixelSize: 15
                                 font.weight: Font.DemiBold
                                 color: FishUI.Theme.textColor

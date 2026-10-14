@@ -333,7 +333,7 @@ Item {
                     }
 
                     Label {
-                        text: qsTr("Apple Account")
+                        text: qsTr("User Account")
                         font.pointSize: 8
                         color: FishUI.Theme.disabledTextColor
                         elide: Text.ElideRight
