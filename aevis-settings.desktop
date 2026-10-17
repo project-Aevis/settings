@@ -1,0 +1,14 @@
+[Desktop Entry]
+Name=System Settings
+Name[zh_CN]=系统设置
+GenericName=Settings
+Comment=Project Aevis System Settings
+Exec=/usr/bin/aevis-settings
+TryExec=aevis-settings
+Icon=preferences-system
+Terminal=false
+Type=Application
+StartupNotify=true
+StartupWMClass=aevis-settings
+Categories=Settings;
+
