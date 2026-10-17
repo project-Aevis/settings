@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2021 CutefishOS Team.
+ * Copyright (C) 2026 Project Aevis Contributors.
  *
  * Author:     revenmartin <revenmartin@gmail.com>
  *
@@ -44,7 +45,12 @@ int main(int argc, char *argv[])
 
     Application app(argc, argv);
 
-    app.setWindowIcon(QIcon::fromTheme("cutefish-settings"));
+    app.setApplicationName(QStringLiteral("aevis-settings"));
+    app.setApplicationDisplayName(QStringLiteral("Settings"));
+    app.setOrganizationDomain(QStringLiteral("aevis.org"));
+    app.setWindowIcon(QIcon::fromTheme(QStringLiteral("aevis-settings"),
+                      QIcon::fromTheme(QStringLiteral("cutefish-settings"),
+                      QIcon::fromTheme(QStringLiteral("preferences-system")))));
 
     return 0;
 }

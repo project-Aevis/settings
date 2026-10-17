@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2021 - 2022 CutefishOS Team.
+ * Copyright (C) 2026 Project Aevis Contributors.
  *
  * Author:     Kate Leet <kate@cutefishos.com>
  *

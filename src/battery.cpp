@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2021 CutefishOS Team.
+ * Copyright (C) 2026 Project Aevis Contributors.
  *
  * Author:     Reion Wong <reionwong@gmail.com>
  *
@@ -20,6 +21,8 @@
 #include "battery.h"
 #include <QDateTime>
 #include <QSettings>
+#include <QDir>
+#include <QFile>
 #include <QDBusArgument>
 #include <QDBusReply>
 #include <QDBusServiceWatcher>
@@ -201,12 +204,18 @@ QString Battery::lastChargedTime() const
 
 bool Battery::showPercent()
 {
-    QSettings settings(QSettings::UserScope, "cutefishos", "statusbar");
+    const QString aevisPath = QDir::home().filePath(QStringLiteral(".config/aevis/statusbar.conf"));
+    const QString cutefishPath = QDir::home().filePath(QStringLiteral(".config/cutefishos/statusbar.conf"));
+    QSettings settings(QFile::exists(aevisPath) ? aevisPath : cutefishPath, QSettings::IniFormat);
     return settings.value("BatteryPercentage", false).toBool();
 }
 
 void Battery::setPercentEnabled(bool value)
 {
+    QDBusInterface aevisStatusbar("org.aevis.Statusbar", "/Statusbar", "org.aevis.Statusbar", QDBusConnection::sessionBus());
+    if (aevisStatusbar.isValid()) {
+        aevisStatusbar.call("setBatteryPercentage", value);
+    }
     QDBusInterface("com.cutefish.Statusbar", "/Statusbar").call("setBatteryPercentage", value);
 }
 

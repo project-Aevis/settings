@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2024 CutefishOS Team.
+ * Copyright (C) 2026 Project Aevis Contributors.
  *
  * KDE Connect Integration Page.
  */

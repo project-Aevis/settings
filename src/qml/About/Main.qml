@@ -1,3 +1,10 @@
+/*
+ * Copyright (C) 2021 CutefishOS Team.
+ * Copyright (C) 2026 Project Aevis Contributors.
+ *
+ * SPDX-License-Identifier: GPL-3.0-or-later
+ */
+
 import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
@@ -30,22 +37,15 @@ ItemPage {
                 Layout.alignment: Qt.AlignHCenter
                 spacing: 8
 
-                Rectangle {
+                Image {
                     Layout.alignment: Qt.AlignHCenter
                     width: 72
                     height: 72
-                    radius: 36
-                    color: FishUI.Theme.darkMode ? Qt.rgba(1, 1, 1, 0.10) : Qt.rgba(0, 0, 0, 0.05)
-                    border.width: 1 / FishUI.Dpi.ratio
-                    border.color: FishUI.Theme.darkMode ? Qt.rgba(255, 255, 255, 0.15) : Qt.rgba(0, 0, 0, 0.08)
-
-                    Image {
-                        anchors.centerIn: parent
-                        width: 44
-                        height: 44
-                        sourceSize: Qt.size(44, 44)
-                        source: "qrc:/images/sidebar/" + (FishUI.Theme.darkMode ? "dark/" : "light/") + "about.svg"
-                    }
+                    sourceSize: Qt.size(144, 144)
+                    source: "qrc:/images/aevis-logo.svg"
+                    fillMode: Image.PreserveAspectFit
+                    smooth: true
+                    mipmap: true
                 }
 
                 Label {
@@ -60,6 +60,13 @@ ItemPage {
                     Layout.alignment: Qt.AlignHCenter
                     text: qsTr("Version %1").arg(about.version)
                     font.pointSize: 9.5
+                    color: FishUI.Theme.disabledTextColor
+                }
+
+                Label {
+                    Layout.alignment: Qt.AlignHCenter
+                    text: qsTr("Project Aevis — Built upon the foundation of Cutefish OS")
+                    font.pointSize: 8.5
                     color: FishUI.Theme.disabledTextColor
                 }
             }
@@ -173,25 +180,18 @@ ItemPage {
                         spacing: 12
                         Layout.alignment: Qt.AlignHCenter
 
-                        RowLayout {
-                            spacing: 4
-                            Rectangle { width: 8; height: 8; radius: 4; color: "#007AFF" }
-                            Label { text: qsTr("System"); font.pointSize: 7.5; color: FishUI.Theme.disabledTextColor }
-                        }
-                        RowLayout {
-                            spacing: 4
-                            Rectangle { width: 8; height: 8; radius: 4; color: "#AF52DE" }
-                            Label { text: qsTr("Apps"); font.pointSize: 7.5; color: FishUI.Theme.disabledTextColor }
-                        }
-                        RowLayout {
-                            spacing: 4
-                            Rectangle { width: 8; height: 8; radius: 4; color: "#FF9500" }
-                            Label { text: qsTr("User Data"); font.pointSize: 7.5; color: FishUI.Theme.disabledTextColor }
-                        }
-                        RowLayout {
-                            spacing: 4
-                            Rectangle { width: 8; height: 8; radius: 4; color: FishUI.Theme.darkMode ? "#555558" : "#d0d0d5" }
-                            Label { text: qsTr("Free Space"); font.pointSize: 7.5; color: FishUI.Theme.disabledTextColor }
+                        Repeater {
+                            model: [
+                                { color: "#007AFF", name: qsTr("System") },
+                                { color: "#AF52DE", name: qsTr("Apps") },
+                                { color: "#FF9500", name: qsTr("User Data") },
+                                { color: FishUI.Theme.darkMode ? "#555558" : "#d0d0d5", name: qsTr("Free Space") }
+                            ]
+                            RowLayout {
+                                spacing: 4
+                                Rectangle { width: 8; height: 8; radius: 4; color: modelData.color }
+                                Label { text: modelData.name; font.pointSize: 7.5; color: FishUI.Theme.disabledTextColor }
+                            }
                         }
                     }
                 }

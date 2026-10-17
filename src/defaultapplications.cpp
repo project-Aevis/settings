@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2021 - 2022 CutefishOS Team.
+ * Copyright (C) 2026 Project Aevis Contributors.
  *
  * Author:     Kate Leet <kate@cutefishos.com>
  *
@@ -22,9 +23,12 @@
 #include "desktopentry.h"
 
 #include <QFileInfo>
+#include <QDir>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QDebug>
+#include <KSharedConfig>
+#include <KConfigGroup>
 
 static QString firstDesktopEntry(const QString &value)
 {
@@ -68,7 +72,8 @@ void DefaultApplications::loadApps()
                 && entry->mimeTypes().contains(QStringLiteral("inode/directory"))) {
             m_fileManagerList.append(item);
         } else if (entry->categories().contains(QStringLiteral("WebBrowser"))
-                   && entry->mimeTypes().contains(QStringLiteral("x-scheme-handler/http"))) {
+                   && (entry->mimeTypes().contains(QStringLiteral("x-scheme-handler/http"))
+                       || entry->mimeTypes().contains(QStringLiteral("text/html")))) {
             m_browserList.append(item);
         } else if (entry->categories().contains(QStringLiteral("Email"))
                    && entry->mimeTypes().contains(QStringLiteral("x-scheme-handler/mailto"))) {
@@ -78,16 +83,29 @@ void DefaultApplications::loadApps()
         }
     }
 
-    // XDG values are semicolon-separated lists and may end with a semicolon.
-    QSettings mimeApps(mimeAppsListFilePath(), QSettings::IniFormat);
-    mimeApps.beginGroup("Default Applications");
+    KSharedConfig::Ptr profile = KSharedConfig::openConfig(QStringLiteral("mimeapps.list"),
+                                                           KConfig::NoGlobals,
+                                                           QStandardPaths::GenericConfigLocation);
+    profile->reparseConfiguration();
 
-    QSettings settings("cutefishos", "defaultApps");
+    KConfigGroup mimeApps(profile, "Default Applications");
 
-    const QString defaultBrowser = firstDesktopEntry(mimeApps.value("x-scheme-handler/http").toString());
-    const QString defaultFM = firstDesktopEntry(mimeApps.value("inode/directory").toString());
-    const QString defaultEMail = firstDesktopEntry(mimeApps.value("x-scheme-handler/mailto").toString());
-    QString defaultTerminal = settings.value("terminal").toString();
+    const QString defaultAppsOrg = (QFile::exists(QDir::homePath() + QStringLiteral("/.config/aevis/defaultApps.conf")) ||
+                                    QFile::exists(QDir::homePath() + QStringLiteral("/.config/aevis")))
+        ? QStringLiteral("aevis") : QStringLiteral("cutefishos");
+    QSettings settings(defaultAppsOrg, QStringLiteral("defaultApps"));
+
+    QString defaultBrowser = firstDesktopEntry(mimeApps.readXdgListEntry("x-scheme-handler/http").value(0));
+    if (defaultBrowser.isEmpty()) {
+        defaultBrowser = firstDesktopEntry(mimeApps.readXdgListEntry("text/html").value(0));
+    }
+    const QString defaultFM = firstDesktopEntry(mimeApps.readXdgListEntry("inode/directory").value(0));
+    const QString defaultEMail = firstDesktopEntry(mimeApps.readXdgListEntry("x-scheme-handler/mailto").value(0));
+    QString defaultTerminal = settings.value(QStringLiteral("terminal")).toString();
+    if (defaultTerminal.isEmpty() && defaultAppsOrg != QStringLiteral("cutefishos")) {
+        QSettings legacySettings(QStringLiteral("cutefishos"), QStringLiteral("defaultApps"));
+        defaultTerminal = legacySettings.value(QStringLiteral("terminal")).toString();
+    }
 
     // Init indexes.
     for (int i = 0; i < m_browserList.size(); ++i) {
@@ -210,6 +228,8 @@ void DefaultApplications::setDefaultBrowser(int index)
 
     setDefaultApp("x-scheme-handler/http", desktop);
     setDefaultApp("x-scheme-handler/https", desktop);
+    setDefaultApp("text/html", desktop);
+    setDefaultApp("application/xhtml+xml", desktop);
 }
 
 void DefaultApplications::setDefaultFileManager(int index)
@@ -241,15 +261,27 @@ void DefaultApplications::setDefaultTerminal(int index)
 
     qDebug() << index << desktop;
 
-    QSettings settings("cutefishos", "defaultApps");
-    settings.setValue("terminal", desktop);
+    for (const QString &org : { QStringLiteral("aevis"), QStringLiteral("cutefishos") }) {
+        QSettings settings(org, QStringLiteral("defaultApps"));
+        settings.setValue(QStringLiteral("terminal"), desktop);
+    }
 }
 
 void DefaultApplications::setDefaultApp(const QString &mimeType, const QString &path)
 {
-    QSettings mimeApps(mimeAppsListFilePath(), QSettings::IniFormat);
-    mimeApps.beginGroup("Default Applications");
-    mimeApps.setValue(mimeType, path + QLatin1Char(';'));
+    KSharedConfig::Ptr profile = KSharedConfig::openConfig(QStringLiteral("mimeapps.list"),
+                                                           KConfig::NoGlobals,
+                                                           QStandardPaths::GenericConfigLocation);
+    KConfigGroup defaultApp(profile, "Default Applications");
+    defaultApp.writeXdgListEntry(mimeType, QStringList{path});
+
+    KConfigGroup addedApps(profile, "Added Associations");
+    QStringList apps = addedApps.readXdgListEntry(mimeType);
+    apps.removeAll(path);
+    apps.prepend(path);
+    addedApps.writeXdgListEntry(mimeType, apps);
+
+    profile->sync();
 }
 
 QString DefaultApplications::mimeAppsListFilePath() const

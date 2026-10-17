@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2021 CutefishOS Team.
+ * Copyright (C) 2026 Project Aevis Contributors.
  *
  * Author:     Reion Wong <reionwong@gmail.com>
  *
@@ -21,7 +22,6 @@
 
 #include <QFile>
 #include <QStorageInfo>
-#include <QRegularExpression>
 #include <QSettings>
 #include <QProcess>
 
@@ -34,40 +34,17 @@
 
 static QString formatByteSize(double size, int precision)
 {
+    static const char * const units[] = { "B", "KB", "MB", "GB", "TB", "PB", "EB" };
     int unit = 0;
-    double multiplier = 1024.0;
 
-    while (qAbs(size) >= multiplier && unit < int(8)) {
-        size /= multiplier;
+    while (qAbs(size) >= 1024.0 && unit < 6) {
+        size /= 1024.0;
         ++unit;
     }
 
-    if (unit == 0) {
-        precision = 0;
-    }
-
-    QString numString = QString::number(size, 'f', precision);
-
-    switch (unit) {
-    case 0:
-        return QString("%1 B").arg(numString);
-    case 1:
-        return QString("%1 KB").arg(numString);
-    case 2:
-        return QString("%1 MB").arg(numString);
-    case 3:
-        return QString("%1 GB").arg(numString);
-    case 4:
-        return QString("%1 TB").arg(numString);
-    case 5:
-        return QString("%1 PB").arg(numString);
-    case 6:
-        return QString("%1 EB").arg(numString);
-    default:
-        return QString();
-    }
-
-    return QString();
+    return QString("%1 %2")
+        .arg(QString::number(size, 'f', unit == 0 ? 0 : precision),
+             QLatin1String(units[unit]));
 }
 
 About::About(QObject *parent)
@@ -75,29 +52,37 @@ About::About(QObject *parent)
 {
 }
 
+bool About::isAevisOS()
+{
+    return QFile::exists(QStringLiteral("/etc/aevis")) ||
+           QFile::exists(QStringLiteral("/etc/aevisos")) ||
+           QFile::exists(QStringLiteral("/etc/cutefishos")) ||
+           QFile::exists(QStringLiteral("/etc/cutefish"));
+}
+
 bool About::isCutefishOS()
 {
-    if (QFile::exists("/etc/cutefishos") || QFile::exists("/etc/cutefish"))
-        return true;
-    return true;
+    return isAevisOS();
 }
 
 QString About::version()
 {
-    if (QFile::exists("/etc/cutefish")) {
-        QSettings settings("/etc/cutefish", QSettings::IniFormat);
-        QString v = settings.value("Version").toString();
-        if (!v.isEmpty())
-            return v;
+    for (const char *path : { "/etc/aevis", "/etc/cutefish" }) {
+        if (QFile::exists(QLatin1String(path))) {
+            QSettings settings(QLatin1String(path), QSettings::IniFormat);
+            const QString v = settings.value(QStringLiteral("Version")).toString();
+            if (!v.isEmpty())
+                return v;
+        }
     }
-    return QStringLiteral("1.0.0 (Sequoia Edition)");
+    return QStringLiteral("1.0.0 (Aevis Edition)");
 }
 
 QString About::osName()
 {
     QString name = QSysInfo::prettyProductName();
-    if (name.isEmpty() || name == "Unknown") {
-        name = QStringLiteral("CutefishOS GNU/Linux");
+    if (name.isEmpty() || name == QStringLiteral("Unknown")) {
+        name = QStringLiteral("Project Aevis GNU/Linux");
     }
     return name;
 }
@@ -124,12 +109,8 @@ QString About::hostname()
 
 QString About::userName()
 {
-    QByteArray userName = qgetenv("USER");
-
-    if (userName.isEmpty())
-        userName = qgetenv("USERNAME");
-
-    return QString::fromUtf8(userName);
+    const QByteArray userName = qgetenv("USER");
+    return QString::fromUtf8(userName.isEmpty() ? qgetenv("USERNAME") : userName);
 }
 
 QString About::memorySize()
@@ -201,7 +182,9 @@ QString About::cpuInfo()
 
 void About::openUpdator()
 {
-    QProcess::startDetached("cutefish-updator", QStringList());
+    if (!QProcess::startDetached(QStringLiteral("aevis-updator"), {})) {
+        QProcess::startDetached(QStringLiteral("cutefish-updator"), {});
+    }
 }
 
 qlonglong About::calculateTotalRam() const

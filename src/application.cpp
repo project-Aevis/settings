@@ -48,10 +48,10 @@ Application::Application(int &argc, char **argv)
 {
     QPixmapCache::setCacheLimit(2048);
     setWindowIcon(QIcon::fromTheme("preferences-system"));
-    setOrganizationName("cutefishos");
+    setOrganizationName(QStringLiteral("aevis"));
 
     QCommandLineParser parser;
-    parser.setApplicationDescription(QStringLiteral("Cutefish Settings"));
+    parser.setApplicationDescription(QStringLiteral("Project Aevis Settings"));
     parser.addHelpOption();
 
     QCommandLineOption moduleOption("m", "Switch to module", "module");
@@ -60,7 +60,9 @@ Application::Application(int &argc, char **argv)
 
     const QString module = parser.value(moduleOption);
 
-    if (!QDBusConnection::sessionBus().registerService("com.cutefish.SettingsUI")) {
+    bool regAevis = QDBusConnection::sessionBus().registerService(QStringLiteral("org.aevis.SettingsUI"));
+    bool regLegacy = QDBusConnection::sessionBus().registerService(QStringLiteral("com.cutefish.SettingsUI"));
+    if (!regAevis && !regLegacy) {
         QDBusInterface iface("com.cutefish.SettingsUI", "/SettingsUI", "com.cutefish.SettingsUI", QDBusConnection::sessionBus());
         if (iface.isValid())
             iface.call("switchToPage", module);
@@ -117,7 +119,8 @@ Application::Application(int &argc, char **argv)
     m_engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
 
     // Trim freed memory after startup and periodically
-    QTimer::singleShot(2000, []() {
+    QTimer::singleShot(2000, [this]() {
+        m_engine.trimComponentCache();
 #ifdef __GLIBC__
         malloc_trim(0);
 #endif
@@ -125,7 +128,8 @@ Application::Application(int &argc, char **argv)
 
     QTimer *trimTimer = new QTimer(this);
     trimTimer->setInterval(45000);
-    connect(trimTimer, &QTimer::timeout, this, []() {
+    connect(trimTimer, &QTimer::timeout, this, [this]() {
+        m_engine.trimComponentCache();
 #ifdef __GLIBC__
         malloc_trim(0);
 #endif

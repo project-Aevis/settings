@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2021 CutefishOS Team.
+ * Copyright (C) 2026 Project Aevis Contributors.
  *
  * Author:     Kate Leet <kateleet@cutefishos.com>
  *
@@ -21,12 +22,16 @@
 
 Notifications::Notifications(QObject *parent)
     : QObject(parent)
-    , m_iface("com.cutefish.Notification",
-              "/Notification",
-              "com.cutefish.Notification", QDBusConnection::sessionBus())
+    , m_iface(QDBusInterface("org.aevis.Notification", "/Notification", "org.aevis.Notification", QDBusConnection::sessionBus()).isValid()
+              ? QDBusInterface("org.aevis.Notification", "/Notification", "org.aevis.Notification", QDBusConnection::sessionBus())
+              : QDBusInterface("com.cutefish.Notification", "/Notification", "com.cutefish.Notification", QDBusConnection::sessionBus()))
 {
     m_doNotDisturb = m_iface.property("doNotDisturb").toBool();
 
+    QDBusConnection::sessionBus().connect("org.aevis.Notification",
+                                          "/Notification",
+                                          "org.aevis.Notification",
+                                          "doNotDisturbChanged", this, SLOT(onDBusDoNotDisturbChanged()));
     QDBusConnection::sessionBus().connect("com.cutefish.Notification",
                                           "/Notification",
                                           "com.cutefish.Notification",
@@ -42,12 +47,18 @@ void Notifications::setDoNotDisturb(bool enabled)
 {
     m_doNotDisturb = enabled;
 
-    QDBusInterface iface("com.cutefish.Notification",
-                         "/Notification",
-                         "com.cutefish.Notification", QDBusConnection::sessionBus());
+    QDBusInterface aevisIface("org.aevis.Notification",
+                              "/Notification",
+                              "org.aevis.Notification", QDBusConnection::sessionBus());
+    if (aevisIface.isValid()) {
+        aevisIface.asyncCall("setDoNotDisturb", enabled);
+    }
 
-    if (iface.isValid()) {
-        iface.asyncCall("setDoNotDisturb", enabled);
+    QDBusInterface legacyIface("com.cutefish.Notification",
+                               "/Notification",
+                               "com.cutefish.Notification", QDBusConnection::sessionBus());
+    if (legacyIface.isValid()) {
+        legacyIface.asyncCall("setDoNotDisturb", enabled);
     }
 
     emit doNotDisturbChanged();

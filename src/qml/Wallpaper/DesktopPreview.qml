@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2021 CutefishOS Team.
+ * Copyright (C) 2026 Project Aevis Contributors.
  *
  * Author:     revenmartin <revenmartin@gmail.com>
  *
@@ -32,7 +33,7 @@ Item {
 
         Image {
             id: image
-            source: "file://" + background.path
+            source: background.path ? "file://" + background.path : ""
             sourceSize: Qt.size(control.width * Screen.devicePixelRatio, control.height * Screen.devicePixelRatio)
             fillMode: Image.PreserveAspectCrop
             asynchronous: true

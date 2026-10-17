@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2021 CutefishOS Team.
+ * Copyright (C) 2026 Project Aevis Contributors.
  *
  * Author:     Reion Wong <reionwong@gmail.com>
  *
@@ -18,6 +19,8 @@
  */
 
 #include "fonts.h"
+#include <QFile>
+#include <QDir>
 
 namespace
 {
@@ -50,7 +53,8 @@ QString hintingToString(Fonts::Hinting hinting)
 
 Fonts::Fonts(QObject *parent)
     : QObject(parent)
-    , m_settings("cutefishos", "theme")
+    , m_settings(QFile::exists(QDir::homePath() + QStringLiteral("/.config/aevis/theme.conf"))
+                 ? QStringLiteral("aevis") : QStringLiteral("cutefishos"), QStringLiteral("theme"))
     , m_antiAliasing(false)
     , m_hintingModel(new QStandardItemModel(this))
 {
@@ -114,6 +118,16 @@ void Fonts::save()
     m_settings.setValue("FontAntialias", m_antiAliasing);
     m_settings.setValue("FontHintStyle", hintingToString(m_hinting));
     m_settings.sync();
+
+    QSettings aevisSettings(QStringLiteral("aevis"), QStringLiteral("theme"));
+    aevisSettings.setValue(QStringLiteral("FontAntialias"), m_antiAliasing);
+    aevisSettings.setValue(QStringLiteral("FontHintStyle"), hintingToString(m_hinting));
+    aevisSettings.sync();
+
+    QSettings cutefishSettings(QStringLiteral("cutefishos"), QStringLiteral("theme"));
+    cutefishSettings.setValue(QStringLiteral("FontAntialias"), m_antiAliasing);
+    cutefishSettings.setValue(QStringLiteral("FontHintStyle"), hintingToString(m_hinting));
+    cutefishSettings.sync();
 
     m_appearance.applyFontSettings();
 }

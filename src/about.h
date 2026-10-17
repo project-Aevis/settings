@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2021 CutefishOS Team.
+ * Copyright (C) 2026 Project Aevis Contributors.
  *
  * Author:     Reion Wong <reionwong@gmail.com>
  *
@@ -23,11 +24,11 @@
 #include <QObject>
 #include <QString>
 #include <QSysInfo>
-#include <qqml.h>
 
 class About : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(bool isAevisOS READ isAevisOS CONSTANT)
     Q_PROPERTY(bool isCutefishOS READ isCutefishOS CONSTANT)
     Q_PROPERTY(QString version READ version CONSTANT)
     Q_PROPERTY(QString osName READ osName CONSTANT)
@@ -43,17 +44,16 @@ class About : public QObject
 public:
     explicit About(QObject *parent = nullptr);
 
+    bool isAevisOS();
     bool isCutefishOS();
 
     QString version();
-
     QString osName();
     QString architecture();
     QString kernelType();
     QString kernelVersion();
     QString hostname();
     QString userName();
-    QString settingsVersion();
     QString memorySize();
     QString prettyProductName();
     QString internalStorage();

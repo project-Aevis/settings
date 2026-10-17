@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2021 CutefishOS Team.
+ * Copyright (C) 2026 Project Aevis Contributors.
  *
  * Author:     revenmartin <revenmartin@gmail.com>
  *
@@ -46,23 +47,38 @@ ItemPage {
         id: fonts
     }
 
+    function updateFontSelection() {
+        var currentGen = appearance.fontFamily || fontsModel.systemGeneralFont;
+        for (var i in fontsModel.generalFonts) {
+            if (currentGen === fontsModel.generalFonts[i]) {
+                generalFontComboBox.currentIndex = i;
+                break;
+            }
+        }
+
+        var currentFixed = appearance.fixedFontFamily || fontsModel.systemFixedFont;
+        for (i in fontsModel.fixedFonts) {
+            if (currentFixed === fontsModel.fixedFonts[i]) {
+                fixedFontComboBox.currentIndex = i;
+                break;
+            }
+        }
+    }
+
     Connections {
         target: fontsModel
-
         function onLoadFinished() {
-            for (var i in fontsModel.generalFonts) {
-                if (fontsModel.systemGeneralFont === fontsModel.generalFonts[i]) {
-                    generalFontComboBox.currentIndex = i
-                    break;
-                }
-            }
+            updateFontSelection();
+        }
+    }
 
-            for (i in fontsModel.fixedFonts) {
-                if (fontsModel.systemFixedFont === fontsModel.fixedFonts[i]) {
-                    fixedFontComboBox.currentIndex = i
-                    break;
-                }
-            }
+    Connections {
+        target: appearance
+        function onFontFamilyChanged() {
+            updateFontSelection();
+        }
+        function onFixedFontFamilyChanged() {
+            updateFontSelection();
         }
     }
 

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2021 CutefishOS Team.
+ * Copyright (C) 2026 Project Aevis Contributors.
  *
  * Author:     revenmartin <revenmartin@gmail.com>
  *
@@ -23,9 +24,15 @@
 Brightness::Brightness(QObject *parent)
     : QObject(parent)
     , m_dbusConnection(QDBusConnection::sessionBus())
-    , m_iface("com.cutefish.Services",
-              "/com/cutefish/Services/Brightness",
-              "com.cutefish.Services.Brightness", m_dbusConnection)
+    , m_iface(QDBusInterface("org.aevis.Services",
+                             "/org/aevis/Services/Brightness",
+                             "com.cutefish.Services.Brightness", m_dbusConnection).isValid()
+              ? QDBusInterface("org.aevis.Services",
+                               "/org/aevis/Services/Brightness",
+                               "com.cutefish.Services.Brightness", m_dbusConnection)
+              : QDBusInterface("com.cutefish.Services",
+                               "/com/cutefish/Services/Brightness",
+                               "com.cutefish.Services.Brightness", m_dbusConnection))
     , m_value(0)
     , m_enabled(false)
 {
@@ -38,6 +45,7 @@ Brightness::Brightness(QObject *parent)
 
 void Brightness::setValue(int value)
 {
+    value = std::clamp(value, 1, 100);
     m_iface.asyncCall("setValue", QVariant::fromValue(value));
 }
 

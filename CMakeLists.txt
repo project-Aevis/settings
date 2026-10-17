@@ -12,6 +12,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+include(GNUInstallDirs)
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake;${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 set(QT Core Gui Widgets Quick QuickControls2 DBus Xml Concurrent LinguistTools Network)
@@ -111,8 +112,12 @@ install(TARGETS ${PROJECT_NAME} RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 
 install(FILES
     cutefish-settings.desktop
+    aevis-settings.desktop
     DESTINATION /usr/share/applications/
     COMPONENT Runtime
 )
 
 install(FILES ${QM_FILES} DESTINATION /usr/share/${PROJECT_NAME}/translations)
+install(FILES ${QM_FILES} DESTINATION /usr/share/aevis-settings/translations)
+
+install(CODE "execute_process(COMMAND \${CMAKE_COMMAND} -E create_symlink ${PROJECT_NAME} \$ENV{DESTDIR}\${CMAKE_INSTALL_FULL_BINDIR}/aevis-settings)")

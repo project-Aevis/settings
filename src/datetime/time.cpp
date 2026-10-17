@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2021 CutefishOS Team.
+ * Copyright (C) 2026 Project Aevis Contributors.
  *
  * Author:     Reion Wong <reionwong@gmail.com>
  *
@@ -111,6 +112,10 @@ void Time::setTwentyFour(bool t)
         m_twentyFour = t;
         m_settings.setValue("twentyFour", m_twentyFour);
 
+        QDBusInterface aevisStatusbar("org.aevis.Statusbar", "/Statusbar", "org.aevis.Statusbar", QDBusConnection::sessionBus());
+        if (aevisStatusbar.isValid()) {
+            aevisStatusbar.call("setTwentyFourTime", m_twentyFour);
+        }
         QDBusInterface("com.cutefish.Statusbar", "/Statusbar").call("setTwentyFourTime", m_twentyFour);
 
         emit twentyFourChanged();

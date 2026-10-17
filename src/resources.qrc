@@ -8,6 +8,7 @@
         <file>images/light/display-brightness-low-symbolic.svg</file>
         <file>images/light/display-brightness-symbolic.svg</file>
         <file>images/logo.svg</file>
+        <file>images/aevis-logo.svg</file>
         <file>qml/Scrollable.qml</file>
         <file>images/sensors-voltage-symbolic.svg</file>
         <file>qml/StandardItem.qml</file>

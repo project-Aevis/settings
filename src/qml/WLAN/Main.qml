@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2021 CutefishOS Team.
+ * Copyright (C) 2026 Project Aevis Contributors.
  *
  * Author:     revenmartin <revenmartin@gmail.com>
  *
@@ -153,7 +154,7 @@ ItemPage {
 
                         TextField {
                             id: ssidName
-                            text: configuration.hotspotName.length > 0 ? configuration.hotspotName : "Cutefish-Hotspot"
+                            text: configuration.hotspotName.length > 0 ? configuration.hotspotName : "Aevis-Hotspot"
                             placeholderText: qsTr("SSID Name")
                             Layout.fillWidth: true
                         }

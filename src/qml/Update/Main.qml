@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2021-2026 CutefishOS Team.
+ * Copyright (C) 2026 Project Aevis Contributors.
  *
  * macOS Inset Grouped Software Update Settings
  */
@@ -8,10 +9,15 @@ import QtQuick 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Layouts 1.12
 import FishUI 1.0 as FishUI
+import Cutefish.Settings 1.0
 import "../"
 
 ItemPage {
     headerTitle: qsTr("Software Update")
+
+    About {
+        id: about
+    }
 
     property bool isChecking: false
     property string lastChecked: qsTr("Today, 3:30 AM")
@@ -74,7 +80,7 @@ ItemPage {
                             spacing: 4
 
                             Label {
-                                text: isChecking ? qsTr("Checking for updates...") : qsTr("Cutefish Edition 26.04")
+                                text: isChecking ? qsTr("Checking for updates...") : (about.osName + " " + qsTr("Edition %1").arg(about.version))
                                 font.pixelSize: 15
                                 font.weight: Font.DemiBold
                                 color: FishUI.Theme.textColor
@@ -146,7 +152,7 @@ ItemPage {
                 HorizontalDivider {}
 
                 StandardItem {
-                    title: qsTr("Install Cutefish security responses and system files")
+                    title: qsTr("Install %1 security responses and system files").arg(about.osName)
                     showSwitch: true
                     checked: true
                 }
