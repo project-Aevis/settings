@@ -1,30 +1,49 @@
-# Settings
+# Aevis System Settings
 
-The System Settings application for Cutefish Desktop.
+System Settings control center for the Aevis Desktop Environment.
+
+Part of the **[Project Aevis](https://github.com/project-Aevis)** suite.
 
 ![screenshot](screenshots/Screenshot_20211025_150819.png)
 
+## Modules
+
+- **Display & Screen**: Resolution, scaling, refresh rate, orientation
+- **Appearance**: Light/Dark theme switch, accent colors, wallpaper picker, cursor & icon themes
+- **Network & Wi-Fi**: NetworkManager integration, Wi-Fi connections, cellular data
+- **Bluetooth**: Device discovery, pairing, and audio profile configuration
+- **Sound**: Volume, output/input device selection, application volume mixer
+- **Power & Battery**: Sleep timers, battery health, power profiles
+- **Users & Accounts**: User account management, password change, avatar picture
+- **System Information**: Hardware overview, OS version, kernel information
+
 ## Dependencies
-Arch/Manjaro Dependencies:
+
+### Debian / Ubuntu
+
 ```shell
-sudo pacman -S extra-cmake-modules qt5-base qt5-quickcontrols2 freetype2 fontconfig networkmanager-qt modemmanager-qt
+sudo apt install cmake extra-cmake-modules build-essential \
+    qt6-base-dev qt6-declarative-dev libkf6networkmanagerqt-dev \
+    libkf6bluezqt-dev libkf6config-dev libicu-dev libfreetype6-dev
 ```
 
-Debian/Ubuntu Dependencies:
+### Arch Linux
+
 ```shell
-sudo apt install cmake debhelper extra-cmake-modules libicu-dev libcrypt-dev libfreetype6-dev libfontconfig1-dev libkf5networkmanagerqt-dev libkf5config-dev modemmanager-qt-dev qtbase5-dev qtdeclarative5-dev qtquickcontrols2-5-dev qttools5-dev qttools5-dev-tools qml-module-qtquick-controls2 qml-module-qtquick2 qml-module-qtquick-layouts qml-module-qt-labs-platform qml-module-qt-labs-settings qml-module-qtqml qml-module-qtquick-window2 qml-module-qtquick-shapes qml-module-qtquick-dialogs qml-module-qtquick-particles2
+sudo pacman -S extra-cmake-modules qt6-base qt6-declarative \
+    networkmanager-qt modemmanager-qt fontconfig freetype2
 ```
 
-## Build
+## Build and Install
 
 ```shell
 mkdir build
 cd build
-cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr ..
+cmake -DCMAKE_INSTALL_PREFIX=/usr ..
 make
 sudo make install
 ```
 
 ## License
 
-This project has been licensed by GPLv3.
+This project is licensed under the GNU General Public License v3.0 (GPLv3).
